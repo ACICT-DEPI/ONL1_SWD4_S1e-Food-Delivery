@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_food_app/common/color_extension.dart';
 import 'package:delivery_food_app/common_widget/round_textfield.dart';
+import 'package:delivery_food_app/models/meals.model.dart';
 import 'package:flutter/material.dart';
 
 import '../../common_widget/menu_item_row.dart';
@@ -14,82 +16,47 @@ class MenuItemsView extends StatefulWidget {
   State<MenuItemsView> createState() => _MenuItemsViewState();
 }
 
-class _MenuItemsViewState extends State<MenuItemsView> {
-  TextEditingController txtSearch = TextEditingController();
+List<MenuItem> menuItems = [];
 
-  List menuItemsArr = [
-    {
-      "image": "assets/img/dess_1.png",
-      "name": "French Apple Pie",
-      "rate": "4.9",
-      "rating": "124",
-      "type": "Minute by tuk tuk",
-      "food_type": "Desserts"
-    },
-    {
-      "image": "assets/img/dess_2.png",
-      "name": "Dark Chocolate Cake",
-      "rate": "4.9",
-      "rating": "124",
-      "type": "Cakes by Tella",
-      "food_type": "Desserts"
-    },
-    {
-      "image": "assets/img/dess_3.png",
-      "name": "Street Shake",
-      "rate": "4.9",
-      "rating": "124",
-      "type": "Café Racer",
-      "food_type": "Desserts"
-    },
-    {
-      "image": "assets/img/dess_4.png",
-      "name": "Fudgy Chewy Brownies",
-      "rate": "4.9",
-      "rating": "124",
-      "type": "Minute by tuk tuk",
-      "food_type": "Desserts"
-    },
-    {
-      "image": "assets/img/dess_1.png",
-      "name": "French Apple Pie",
-      "rate": "4.9",
-      "rating": "124",
-      "type": "Minute by tuk tuk",
-      "food_type": "Desserts"
-    },
-    {
-      "image": "assets/img/dess_2.png",
-      "name": "Dark Chocolate Cake",
-      "rate": "4.9",
-      "rating": "124",
-      "type": "Cakes by Tella",
-      "food_type": "Desserts"
-    },
-    {
-      "image": "assets/img/dess_3.png",
-      "name": "Street Shake",
-      "rate": "4.9",
-      "rating": "124",
-      "type": "Café Racer",
-      "food_type": "Desserts"
-    },
-    {
-      "image": "assets/img/dess_4.png",
-      "name": "Fudgy Chewy Brownies",
-      "rate": "4.9",
-      "rating": "124",
-      "type": "Minute by tuk tuk",
-      "food_type": "Desserts"
-    },
-  ];
+class _MenuItemsViewState extends State<MenuItemsView> {
+  bool isLoading = true;
+  TextEditingController txtSearch = TextEditingController();
+  @override
+  void initState() {
+    getMenuItems(widget.mObj["name"].toString());
+
+    super.initState();
+  }
+
+  Future<void> getMenuItems(String category) async {
+    try {
+      // Reference to the 'menu' collection
+      CollectionReference menuRef =
+          FirebaseFirestore.instance.collection('menu');
+
+      // Query the menu items by category (e.g., "meal" or "dessert")
+      QuerySnapshot snapshot =
+          await menuRef.where('category', isEqualTo: category).get();
+
+      // Map the retrieved documents into a list of MenuItem objects
+      menuItems = snapshot.docs
+          .map((e) => MenuItem.fromJson(e.data() as Map<String, dynamic>))
+          .toList();
+      print('menuItems: ${menuItems}');
+    } catch (e) {
+      menuItems = [];
+      print('Error fetching $category items: $e');
+    }
+    isLoading = false;
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
           child: Column(
             children: [
               const SizedBox(
@@ -129,6 +96,7 @@ class _MenuItemsViewState extends State<MenuItemsView> {
                         "assets/img/shopping_cart.png",
                         width: 25,
                         height: 25,
+                        color: TColor.white,
                       ),
                     ),
                   ],
@@ -137,44 +105,142 @@ class _MenuItemsViewState extends State<MenuItemsView> {
               const SizedBox(
                 height: 20,
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: RoundTextfield(
-                  hintText: "Search Food",
-                  controller: txtSearch,
-                  left: Container(
-                    alignment: Alignment.center,
-                    width: 30,
-                    child: Image.asset(
-                      "assets/img/search.png",
-                      width: 20,
-                      height: 20,
+              isLoading
+                  ? Center(
+                      child: CircularProgressIndicator(
+                        color: TColor.primary,
+                      ),
+                    )
+                  : ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      padding: EdgeInsets.zero,
+                      itemCount: menuItems.length,
+                      itemBuilder: ((context, index) {
+                        return Container(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ItemDetailsView(
+                                          item: menuItems[index],
+                                        )),
+                              );
+                            },
+                            child: Stack(
+                              alignment: Alignment.bottomLeft,
+                              children: [
+                                Container(
+                                  width: double.maxFinite,
+                                  height: 200,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    image: DecorationImage(
+                                      image: NetworkImage(
+                                          menuItems[index].imageUrl),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  width: double.maxFinite,
+                                  height: 200,
+                                  decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                          colors: [
+                                        Colors.transparent,
+                                        Colors.transparent,
+                                        Colors.black
+                                      ],
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter)),
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            menuItems[index].name,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                                color: TColor.white,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w700),
+                                          ),
+                                          const SizedBox(
+                                            height: 4,
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Image.asset(
+                                                "assets/img/rate.png",
+                                                width: 10,
+                                                height: 10,
+                                                color: TColor.primary,
+                                                fit: BoxFit.cover,
+                                              ),
+                                              const SizedBox(
+                                                width: 4,
+                                              ),
+                                              Text(
+                                                menuItems[index]
+                                                    .rating
+                                                    .toString(),
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                    color: TColor.primary,
+                                                    fontSize: 11),
+                                              ),
+                                              const SizedBox(
+                                                width: 8,
+                                              ),
+                                              Text(
+                                                menuItems[index].category,
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                    color: TColor.white,
+                                                    fontSize: 11),
+                                              ),
+                                              Text(
+                                                " . ",
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                    color: TColor.primary,
+                                                    fontSize: 11),
+                                              ),
+                                              Text(
+                                                menuItems[index].category,
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                    color: TColor.white,
+                                                    fontSize: 12),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 22,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
                     ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                padding: EdgeInsets.zero,
-                itemCount: menuItemsArr.length,
-                itemBuilder: ((context, index) {
-                  var mObj = menuItemsArr[index] as Map? ?? {};
-                  return MenuItemRow(
-                    mObj: mObj,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ItemDetailsView()),
-                      );
-                    },
-                  );
-                }),
-              ),
             ],
           ),
         ),

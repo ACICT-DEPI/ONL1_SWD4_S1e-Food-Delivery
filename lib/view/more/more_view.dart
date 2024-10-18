@@ -1,7 +1,12 @@
+import 'package:delivery_food_app/view/login/login_view.dart';
+import 'package:delivery_food_app/view/login/welcome_view.dart';
+import 'package:delivery_food_app/view/main_tabview/main_tabview.dart';
 import 'package:delivery_food_app/view/more/about_us_view.dart';
 import 'package:delivery_food_app/view/more/inbox_view.dart';
 import 'package:delivery_food_app/view/more/payment_details_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/color_extension.dart';
 import '../../common/service_call.dart';
@@ -19,36 +24,18 @@ class _MoreViewState extends State<MoreView> {
   List moreArr = [
     {
       "index": "1",
-      "name": "Payment Details",
-      "image": "assets/img/more_payment.png",
-      "base": 0
-    },
-    {
-      "index": "2",
       "name": "My Orders",
       "image": "assets/img/more_my_order.png",
       "base": 0
     },
     {
-      "index": "3",
-      "name": "Notifications",
-      "image": "assets/img/more_notification.png",
-      "base": 15
-    },
-    {
-      "index": "4",
-      "name": "Inbox",
-      "image": "assets/img/more_inbox.png",
-      "base": 0
-    },
-    {
-      "index": "5",
+      "index": "2",
       "name": "About Us",
       "image": "assets/img/more_info.png",
       "base": 0
     },
     {
-      "index": "6",
+      "index": "3",
       "name": "Logout",
       "image": "assets/img/more_info.png",
       "base": 0
@@ -75,7 +62,7 @@ class _MoreViewState extends State<MoreView> {
                     Text(
                       "More",
                       style: TextStyle(
-                          color: TColor.primaryText,
+                          color: TColor.white,
                           fontSize: 20,
                           fontWeight: FontWeight.w800),
                     ),
@@ -90,10 +77,14 @@ class _MoreViewState extends State<MoreView> {
                         "assets/img/shopping_cart.png",
                         width: 25,
                         height: 25,
+                        color: TColor.white,
                       ),
                     ),
                   ],
                 ),
+              ),
+              const SizedBox(
+                height: 100,
               ),
               ListView.builder(
                   padding: EdgeInsets.zero,
@@ -104,40 +95,32 @@ class _MoreViewState extends State<MoreView> {
                     var mObj = moreArr[index] as Map? ?? {};
                     var countBase = mObj["base"] as int? ?? 0;
                     return InkWell(
-                      onTap: () {
+                      onTap: () async {
                         switch (mObj["index"].toString()) {
                           case "1":
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        const PaymentDetailsView()));
-
-                            break;
+                                    builder: (context) => const MyOrderView()));
 
                           case "2":
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const MyOrderView()));
-                          case "3":
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const NotificationsView()));
-                          case "4":
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const InboxView()));
-                          case "5":
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
                                     builder: (context) => const AboutUsView()));
-                          case "6":
-                            ServiceCall.logout();
+                          case "3":
+                            {
+                              await FirebaseAuth.instance.signOut();
+                              SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.remove('authToken');
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const WelcomeView(),
+                                ),
+                              );
+                            }
 
                           default:
                         }
@@ -152,7 +135,7 @@ class _MoreViewState extends State<MoreView> {
                               padding: const EdgeInsets.symmetric(
                                   vertical: 12, horizontal: 12),
                               decoration: BoxDecoration(
-                                  color: TColor.textfield,
+                                  color: TColor.white,
                                   borderRadius: BorderRadius.circular(5)),
                               margin: const EdgeInsets.only(right: 15),
                               child: Row(
@@ -163,13 +146,14 @@ class _MoreViewState extends State<MoreView> {
                                     height: 50,
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                        color: TColor.placeholder,
+                                        color: TColor.black,
                                         borderRadius:
                                             BorderRadius.circular(25)),
                                     alignment: Alignment.center,
                                     child: Image.asset(mObj["image"].toString(),
                                         width: 25,
                                         height: 25,
+                                        color: TColor.white,
                                         fit: BoxFit.contain),
                                   ),
                                   const SizedBox(
@@ -179,7 +163,7 @@ class _MoreViewState extends State<MoreView> {
                                     child: Text(
                                       mObj["name"].toString(),
                                       style: TextStyle(
-                                          color: TColor.primaryText,
+                                          color: TColor.black,
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600),
                                     ),
@@ -212,12 +196,10 @@ class _MoreViewState extends State<MoreView> {
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                  color: TColor.textfield,
+                                  color: TColor.black,
                                   borderRadius: BorderRadius.circular(15)),
                               child: Image.asset("assets/img/btn_next.png",
-                                  width: 10,
-                                  height: 10,
-                                  color: TColor.primaryText),
+                                  width: 10, height: 10, color: TColor.white),
                             ),
                           ],
                         ),

@@ -46,6 +46,7 @@ class _MainTabViewState extends State<MainTabView> {
             "assets/img/tab_home.png",
             width: 30,
             height: 30,
+            color: Colors.black,
           ),
         ),
       ),
@@ -86,10 +87,10 @@ class _MainTabViewState extends State<MainTabView> {
                     }
                   },
                   isSelected: selctTab == 1),
-        
-        
-                const  SizedBox(width: 40, height: 40, ),
-        
+              const SizedBox(
+                width: 40,
+                height: 40,
+              ),
               TabButton(
                   title: "Profile",
                   icon: "assets/img/tab_profile.png",
@@ -109,7 +110,7 @@ class _MainTabViewState extends State<MainTabView> {
                   onTap: () {
                     if (selctTab != 4) {
                       selctTab = 4;
-                      selectPageView = const  MoreView();
+                      selectPageView = const MoreView();
                     }
                     if (mounted) {
                       setState(() {});

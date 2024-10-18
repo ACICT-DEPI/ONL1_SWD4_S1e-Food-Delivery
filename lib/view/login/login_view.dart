@@ -10,6 +10,7 @@ import 'package:delivery_food_app/view/main_tabview/main_tabview.dart';
 import 'package:delivery_food_app/view/on_boarding/on_boarding_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/service_call.dart';
 import '../../common_widget/round_textfield.dart';
@@ -72,30 +73,30 @@ class _LoginViewState extends State<LoginView> {
               ),
               RoundButton(
                   title: "Login",
+                  
                   onPressed: () {
-                    // btnLogin();
                     signIn(txtEmail.text, txtPassword.text);
                   }),
               const SizedBox(
                 height: 4,
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ResetPasswordView(),
-                    ),
-                  );
-                },
-                child: Text(
-                  "Forgot your password?",
-                  style: TextStyle(
-                      color: TColor.secondaryText,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500),
-                ),
-              ),
+              // TextButton(
+              //   onPressed: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //         builder: (context) => const ResetPasswordView(),
+              //       ),
+              //     );
+              //   },
+              //   child: Text(
+              //     "Forgot your password?",
+              //     style: TextStyle(
+              //         color: TColor.secondaryText,
+              //         fontSize: 14,
+              //         fontWeight: FontWeight.w500),
+              //   ),
+              // ),
               const SizedBox(
                 height: 30,
               ),
@@ -136,27 +137,27 @@ class _LoginViewState extends State<LoginView> {
   }
 
   //TODO: Action
-  void btnLogin() {
-    if (!txtEmail.text.isEmail) {
-      mdShowAlert(Globs.appName, MSG.enterEmail, () {});
-      return;
-    }
+  // void btnLogin() {
+  //   if (!txtEmail.text.isEmail) {
+  //     mdShowAlert(Globs.appName, MSG.enterEmail, () {});
+  //     return;
+  //   }
 
-    if (txtPassword.text.length < 6) {
-      mdShowAlert(Globs.appName, MSG.enterPassword, () {});
-      return;
-    }
+  //   if (txtPassword.text.length < 6) {
+  //     mdShowAlert(Globs.appName, MSG.enterPassword, () {});
+  //     return;
+  //   }
 
-    endEditing();
+  //   endEditing();
 
-    serviceCallLogin({
-      "email": txtEmail.text,
-      "password": txtPassword.text,
-      "push_token": ""
-    });
-  }
+  //   serviceCallLogin({
+  //     "email": txtEmail.text,
+  //     "password": txtPassword.text,
+  //     "push_token": ""
+  //   });
+  // }
 
-  void signIn(String email, String password) async {
+  Future<void> signIn(String email, String password) async {
     if (!txtEmail.text.isEmail) {
       mdShowAlert(Globs.appName, MSG.enterEmail, () {});
       return;
@@ -168,73 +169,61 @@ class _LoginViewState extends State<LoginView> {
     }
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      route();
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        print('No user found for that email.');
-      } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+      String? token = await userCredential.user?.getIdToken();
+      if (token != null) {
+        await saveToken(token);
       }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MainTabView(),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      mdShowAlert(Globs.appName, e.message ?? "An error occurred", () {});
     }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MainTabView(),
+      ),
+    );
   }
 
-  void route() {
-    User? user = FirebaseAuth.instance.currentUser;
-    FirebaseFirestore.instance
-        .collection('users')
-        .doc(user!.uid)
-        .get()
-        .then((DocumentSnapshot documentSnapshot) {
-      if (documentSnapshot.exists) {
-        if (documentSnapshot.get('role') == "user") {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const MainTabView(),
-            ),
-          );
-        } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const HomeView(),
-            ),
-          );
-        }
-      } else {
-        print('Document does not exist on the database');
-      }
-    });
+  Future<void> saveToken(String token) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    await pref.setString('authToken', token);
   }
   //TODO: ServiceCall
 
-  void serviceCallLogin(Map<String, dynamic> parameter) {
-    Globs.showHUD();
+  // void serviceCallLogin(Map<String, dynamic> parameter) {
+  //   Globs.showHUD();
 
-    ServiceCall.post(parameter, SVKey.svLogin,
-        withSuccess: (responseObj) async {
-      Globs.hideHUD();
-      if (responseObj[KKey.status] == "1") {
-        Globs.udSet(responseObj[KKey.payload] as Map? ?? {}, Globs.userPayload);
-        Globs.udBoolSet(true, Globs.userLogin);
+  //   ServiceCall.post(parameter, SVKey.svLogin,
+  //       withSuccess: (responseObj) async {
+  //     Globs.hideHUD();
+  //     if (responseObj[KKey.status] == "1") {
+  //       Globs.udSet(responseObj[KKey.payload] as Map? ?? {}, Globs.userPayload);
+  //       Globs.udBoolSet(true, Globs.userLogin);
 
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const OnBoardingView(),
-            ),
-            (route) => false);
-      } else {
-        mdShowAlert(Globs.appName,
-            responseObj[KKey.message] as String? ?? MSG.fail, () {});
-      }
-    }, failure: (err) async {
-      Globs.hideHUD();
-      mdShowAlert(Globs.appName, err.toString(), () {});
-    });
-  }
+  //       Navigator.pushAndRemoveUntil(
+  //           context,
+  //           MaterialPageRoute(
+  //             builder: (context) => const OnBoardingView(),
+  //           ),
+  //           (route) => false);
+  //     } else {
+  //       mdShowAlert(Globs.appName,
+  //           responseObj[KKey.message] as String? ?? MSG.fail, () {});
+  //     }
+  //   }, failure: (err) async {
+  //     Globs.hideHUD();
+  //     mdShowAlert(Globs.appName, err.toString(), () {});
+  //   });
+  // }
 }

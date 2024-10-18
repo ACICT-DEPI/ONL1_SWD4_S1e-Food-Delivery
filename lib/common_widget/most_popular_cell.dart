@@ -68,6 +68,7 @@ class MostPopularCell extends StatelessWidget {
             
                 Image.asset(
                 "assets/img/rate.png",
+                  color: TColor.primary,
                 width: 10,
                 height: 10,
                 fit: BoxFit.cover,

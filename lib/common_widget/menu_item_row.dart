@@ -1,11 +1,12 @@
+import 'package:delivery_food_app/models/meals.model.dart';
 import 'package:flutter/material.dart';
 
 import '../common/color_extension.dart';
 
 class MenuItemRow extends StatelessWidget {
-  final Map mObj;
   final VoidCallback onTap;
-  const MenuItemRow({super.key, required this.mObj, required this.onTap});
+  final MenuItem menuItems;
+  const MenuItemRow({super.key,  required this.onTap, required this.menuItems});
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +17,8 @@ class MenuItemRow extends StatelessWidget {
         child: Stack(
           alignment: Alignment.bottomLeft,
           children: [
-            Image.asset(
-              mObj["image"].toString(),
+            Image.network(
+              menuItems.imageUrl,
               width: double.maxFinite,
               height: 200,
               fit: BoxFit.cover,
@@ -41,7 +42,7 @@ class MenuItemRow extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        mObj["name"],
+                        menuItems.name,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: TColor.white,
@@ -58,13 +59,14 @@ class MenuItemRow extends StatelessWidget {
                             "assets/img/rate.png",
                             width: 10,
                             height: 10,
+                            color: TColor.primary,
                             fit: BoxFit.cover,
                           ),
                           const SizedBox(
                             width: 4,
                           ),
                           Text(
-                            mObj["rate"],
+                            menuItems.rating.toString(),
                             textAlign: TextAlign.center,
                             style:
                                 TextStyle(color: TColor.primary, fontSize: 11),
@@ -73,7 +75,7 @@ class MenuItemRow extends StatelessWidget {
                             width: 8,
                           ),
                           Text(
-                            mObj["type"],
+                            menuItems.category,  
                             textAlign: TextAlign.center,
                             style: TextStyle(color: TColor.white, fontSize: 11),
                           ),
@@ -84,7 +86,7 @@ class MenuItemRow extends StatelessWidget {
                                 TextStyle(color: TColor.primary, fontSize: 11),
                           ),
                           Text(
-                            mObj["food_type"],
+                            menuItems.category,
                             textAlign: TextAlign.center,
                             style: TextStyle(color: TColor.white, fontSize: 12),
                           ),

@@ -22,12 +22,11 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  setUpLocator(); 
+  setUpLocator();
   runApp(const MyApp(
     defaultHome: WelcomeView(),
   ));
 }
-
 
 void configLoading() {
   EasyLoading.instance
@@ -42,11 +41,13 @@ void configLoading() {
     ..userInteractions = false
     ..dismissOnTap = false;
 }
+
 final GetIt locator = GetIt.instance;
 
 void setUpLocator() {
   locator.registerLazySingleton(() => NavigationService());
 }
+
 class MyApp extends StatefulWidget {
   final Widget defaultHome;
   const MyApp({super.key, required this.defaultHome});
@@ -56,51 +57,62 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Food Delivery',
       debugShowCheckedModeBanner: false,
+
+      themeMode: ThemeMode.dark, // Ensures the dark theme is used
+
+      // Define the light theme (if needed)
       theme: ThemeData(
-        fontFamily: "Metropolis",
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a blue toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        // useMaterial3: true,
+        primarySwatch: Colors.blue,
+        brightness: Brightness.light,
+        // Add more light theme configurations if needed
       ),
-      home: widget.defaultHome,
-      navigatorKey: locator<NavigationService>().navigatorKey,
-      onGenerateRoute: (routeSettings) {
-        switch (routeSettings.name) {
-          case "welcome":
-            return MaterialPageRoute(builder: (context) => const WelcomeView());
-          case "Home":
-            return MaterialPageRoute(builder: (context) => const MainTabView());
-          default:
-            return MaterialPageRoute(
-                builder: (context) => Scaffold(
-                      body: Center(
-                          child: Text("No path for ${routeSettings.name}")),
-                    ));
-        }
-      },
+
+      // Define the dark theme
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        primaryColor: TColor.primary, 
+        scaffoldBackgroundColor: Colors.black, 
+        cardColor: Colors.grey[900], 
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.black,
+          iconTheme: IconThemeData(color: TColor.primaryText),
+        ),
+        textTheme: TextTheme(
+          bodyText1:
+              TextStyle(color: TColor.primaryText), 
+          bodyText2: TextStyle(color: TColor.primaryText),
+          
+        ),
+        // Define more colors and styles if needed
+      ),
+
+      home: FutureBuilder<String?>(
+        future: getToken(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasData && snapshot.data != null) {
+            return const MainTabView();
+          } else {
+            return const WelcomeView();
+          }
+        },
+      ),
+
       builder: (context, child) {
         return FlutterEasyLoading(child: child);
       },
     );
+  }
+
+  Future<String?> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('authToken');
   }
 }

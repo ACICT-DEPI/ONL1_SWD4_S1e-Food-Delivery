@@ -79,7 +79,7 @@ class RecentItemRow extends StatelessWidget {
                       Image.asset(
                         "assets/img/rate.png",
                         width: 10,
-                        height: 10,
+                        height: 10, color: TColor.primary,
                         fit: BoxFit.cover,
                       ),
 

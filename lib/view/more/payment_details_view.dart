@@ -67,6 +67,7 @@ class _PaymentDetailsViewState extends State<PaymentDetailsView> {
                         "assets/img/shopping_cart.png",
                         width: 25,
                         height: 25,
+                        color: TColor.white,
                       ),
                     ),
                   ],

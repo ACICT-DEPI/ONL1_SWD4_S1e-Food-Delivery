@@ -10,28 +10,33 @@ class RoundTextfield extends StatelessWidget {
   final Color? bgColor;
   final Widget? left;
 
-  const RoundTextfield(
-      {super.key,
-      required this.hintText,
-      this.controller,
-      this.keyboardType,
-      this.bgColor,
-      this.left,
-      this.obscureText = false});
+  const RoundTextfield({
+    super.key,
+    required this.hintText,
+    this.controller,
+    this.keyboardType,
+    this.bgColor,
+    this.left,
+    this.obscureText = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final backgroundColor = bgColor ??
+        Theme.of(context).inputDecorationTheme.fillColor ??
+        Theme.of(context).cardColor;
+    final hintColor = Theme.of(context).hintColor;
+
     return Container(
       decoration: BoxDecoration(
-          color: bgColor ?? TColor.textfield,
-          borderRadius: BorderRadius.circular(25)),
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(25),
+      ),
       child: Row(
         children: [
           if (left != null)
             Padding(
-              padding: const EdgeInsets.only(
-                left: 15,
-              ),
+              padding: const EdgeInsets.only(left: 15),
               child: left!,
             ),
           Expanded(
@@ -46,9 +51,10 @@ class RoundTextfield extends StatelessWidget {
                 focusedBorder: InputBorder.none,
                 hintText: hintText,
                 hintStyle: TextStyle(
-                    color: TColor.placeholder,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500),
+                  color: hintColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ),
@@ -82,7 +88,9 @@ class RoundTitleTextfield extends StatelessWidget {
     return Container(
       height: 55,
       decoration: BoxDecoration(
-          color: bgColor ?? TColor.textfield,
+          color: bgColor ??
+              Theme.of(context).inputDecorationTheme.fillColor ??
+              Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(25)),
       child: Row(
         children: [
@@ -98,7 +106,9 @@ class RoundTitleTextfield extends StatelessWidget {
               children: [
                 Container(
                   height: 55,
-                  margin: const EdgeInsets.only(top: 8,),
+                  margin: const EdgeInsets.only(
+                    top: 8,
+                  ),
                   alignment: Alignment.topLeft,
                   child: TextField(
                     autocorrect: false,

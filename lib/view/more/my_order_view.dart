@@ -97,6 +97,7 @@ class _MyOrderViewState extends State<MyOrderView> {
                                 "assets/img/rate.png",
                                 width: 10,
                                 height: 10,
+                                color: TColor.primary,
                                 fit: BoxFit.cover,
                               ),
                               const SizedBox(
