@@ -1,17 +1,11 @@
-import 'package:delivery_food_app/view/login/login_view.dart';
 import 'package:delivery_food_app/view/login/welcome_view.dart';
-import 'package:delivery_food_app/view/main_tabview/main_tabview.dart';
 import 'package:delivery_food_app/view/more/about_us_view.dart';
-import 'package:delivery_food_app/view/more/inbox_view.dart';
-import 'package:delivery_food_app/view/more/payment_details_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/color_extension.dart';
-import '../../common/service_call.dart';
 import 'my_order_view.dart';
-import 'notification_view.dart';
 
 class MoreView extends StatefulWidget {
   const MoreView({super.key});

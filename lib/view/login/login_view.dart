@@ -1,18 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_food_app/common/color_extension.dart';
 import 'package:delivery_food_app/common/extension.dart';
 import 'package:delivery_food_app/common/globs.dart';
 import 'package:delivery_food_app/common_widget/round_button.dart';
-import 'package:delivery_food_app/view/home/home_view.dart';
-import 'package:delivery_food_app/view/login/rest_password_view.dart';
 import 'package:delivery_food_app/view/login/sing_up_view.dart';
 import 'package:delivery_food_app/view/main_tabview/main_tabview.dart';
-import 'package:delivery_food_app/view/on_boarding/on_boarding_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../common/service_call.dart';
 import '../../common_widget/round_textfield.dart';
 
 class LoginView extends StatefulWidget {
@@ -73,30 +68,9 @@ class _LoginViewState extends State<LoginView> {
               ),
               RoundButton(
                   title: "Login",
-                  
                   onPressed: () {
                     signIn(txtEmail.text, txtPassword.text);
                   }),
-              const SizedBox(
-                height: 4,
-              ),
-              // TextButton(
-              //   onPressed: () {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(
-              //         builder: (context) => const ResetPasswordView(),
-              //       ),
-              //     );
-              //   },
-              //   child: Text(
-              //     "Forgot your password?",
-              //     style: TextStyle(
-              //         color: TColor.secondaryText,
-              //         fontSize: 14,
-              //         fontWeight: FontWeight.w500),
-              //   ),
-              // ),
               const SizedBox(
                 height: 30,
               ),
@@ -136,27 +110,6 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  //TODO: Action
-  // void btnLogin() {
-  //   if (!txtEmail.text.isEmail) {
-  //     mdShowAlert(Globs.appName, MSG.enterEmail, () {});
-  //     return;
-  //   }
-
-  //   if (txtPassword.text.length < 6) {
-  //     mdShowAlert(Globs.appName, MSG.enterPassword, () {});
-  //     return;
-  //   }
-
-  //   endEditing();
-
-  //   serviceCallLogin({
-  //     "email": txtEmail.text,
-  //     "password": txtPassword.text,
-  //     "push_token": ""
-  //   });
-  // }
-
   Future<void> signIn(String email, String password) async {
     if (!txtEmail.text.isEmail) {
       mdShowAlert(Globs.appName, MSG.enterEmail, () {});
@@ -169,6 +122,7 @@ class _LoginViewState extends State<LoginView> {
     }
 
     try {
+      showLoadingDialog();
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
@@ -178,6 +132,7 @@ class _LoginViewState extends State<LoginView> {
       if (token != null) {
         await saveToken(token);
       }
+      Navigator.pop(context);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -192,6 +147,18 @@ class _LoginViewState extends State<LoginView> {
       MaterialPageRoute(
         builder: (context) => const MainTabView(),
       ),
+    );
+  }
+
+  void showLoadingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
     );
   }
 

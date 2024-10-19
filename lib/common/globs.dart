@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:delivery_food_app/main.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';

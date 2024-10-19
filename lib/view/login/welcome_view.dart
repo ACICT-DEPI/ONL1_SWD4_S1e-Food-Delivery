@@ -19,22 +19,32 @@ class _WelcomeViewState extends State<WelcomeView> {
 
     return Scaffold(
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            height: media.width * 0.5,
-            decoration: BoxDecoration(
-              color: TColor.primary,
-            ),
-          ),
           SizedBox(
+            height: media.width * 0.1,
+          ),
+          Image.asset(
+            "assets/img/logo3.png",
+            width: media.width * 0.5,
             height: media.width * 0.5,
           ),
           Text(
-            "Welcome to best french food restaurant",
+            "The Plate",
+            style: TextStyle(
+                color: TColor.primary,
+                fontSize: 50,
+                fontWeight: FontWeight.w800),
+          ),
+          SizedBox(
+            height: media.width * 0.1,
+          ),
+          Text(
+            "Welcome to The Plate restaurant",
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: TColor.secondaryText,
-                fontSize: 13,
+                fontSize: 15,
                 fontWeight: FontWeight.w500),
           ),
           SizedBox(

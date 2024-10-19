@@ -1,9 +1,6 @@
 import 'package:delivery_food_app/common/color_extension.dart';
-import 'package:delivery_food_app/common_widget/round_button.dart';
 import 'package:flutter/material.dart';
 
-import '../../common_widget/popular_resutaurant_row.dart';
-import '../more/my_order_view.dart';
 
 class OfferView extends StatefulWidget {
   const OfferView({super.key});

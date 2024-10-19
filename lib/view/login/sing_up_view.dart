@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_food_app/common/color_extension.dart';
@@ -12,9 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/globs.dart';
-import '../../common/service_call.dart';
 import '../../common_widget/round_textfield.dart';
-import '../on_boarding/on_boarding_view.dart';
 
 class SignUpView extends StatefulWidget {
   const SignUpView({super.key});
@@ -102,7 +99,7 @@ class _SignUpViewState extends State<SignUpView> {
                   title: "Sign Up",
                   onPressed: () async {
                     await signUp(txtEmail.text, txtPassword.text, "admin");
-                    // await postDetailsToFirestone(context, "admin");
+                  
                   }),
               const SizedBox(
                 height: 30,
@@ -220,21 +217,7 @@ class _SignUpViewState extends State<SignUpView> {
     await pref.setString('authToken', token);
   }
 
-  Future<void> signUsaap(String email, String password, String role) async {
-    const CircularProgressIndicator();
-    if (!txtEmail.text.isEmail) {
-      mdShowAlert(Globs.appName, MSG.enterEmail, () {});
-      return;
-    }
 
-    if (txtPassword.text.length < 6) {
-      mdShowAlert(Globs.appName, MSG.enterPassword, () {});
-      return;
-    }
-
-    await _auth.createUserWithEmailAndPassword(
-        email: email, password: password);
-  }
 
   Future<void> postDetailsToFirestone(BuildContext context, String role) async {
     var user = _auth.currentUser;
@@ -244,7 +227,9 @@ class _SignUpViewState extends State<SignUpView> {
           .collection('users')
           .doc(user.uid)
           .get();
-          print('DocumentSnapshot: ${documentSnapshot.data() as Map<String, dynamic>? ?? {}}');
+          if (kDebugMode) {
+            print('DocumentSnapshot: ${documentSnapshot.data() as Map<String, dynamic>? ?? {}}');
+          }
       try {
         await ref.doc(user.uid).set({
           'email': txtEmail.text,
@@ -263,69 +248,7 @@ class _SignUpViewState extends State<SignUpView> {
     }
   }
 
-  void btnSignUp() {
-    if (txtName.text.isEmpty) {
-      mdShowAlert(Globs.appName, MSG.enterName, () {});
-      return;
-    }
+ 
 
-    if (!txtEmail.text.isEmail) {
-      mdShowAlert(Globs.appName, MSG.enterEmail, () {});
-      return;
-    }
-
-    if (txtMobile.text.isEmpty) {
-      mdShowAlert(Globs.appName, MSG.enterMobile, () {});
-      return;
-    }
-
-    if (txtPassword.text.length < 6) {
-      mdShowAlert(Globs.appName, MSG.enterPassword, () {});
-      return;
-    }
-
-    if (txtPassword.text != txtConfirmPassword.text) {
-      mdShowAlert(Globs.appName, MSG.enterPasswordNotMatch, () {});
-      return;
-    }
-
-    endEditing();
-
-    serviceCallSignUp({
-      "name": txtName.text,
-      "mobile": txtMobile.text,
-      "email": txtEmail.text,
-      "password": txtPassword.text,
-      "push_token": "",
-      "device_type": Platform.isAndroid ? "A" : "I"
-    });
-  }
-
-  //TODO: ServiceCall
-
-  void serviceCallSignUp(Map<String, dynamic> parameter) {
-    Globs.showHUD();
-
-    ServiceCall.post(parameter, SVKey.svSignUp,
-        withSuccess: (responseObj) async {
-      Globs.hideHUD();
-      if (responseObj[KKey.status] == "1") {
-        Globs.udSet(responseObj[KKey.payload] as Map? ?? {}, Globs.userPayload);
-        Globs.udBoolSet(true, Globs.userLogin);
-
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const OnBoardingView(),
-            ),
-            (route) => false);
-      } else {
-        mdShowAlert(Globs.appName,
-            responseObj[KKey.message] as String? ?? MSG.fail, () {});
-      }
-    }, failure: (err) async {
-      Globs.hideHUD();
-      mdShowAlert(Globs.appName, err.toString(), () {});
-    });
-  }
+  
 }

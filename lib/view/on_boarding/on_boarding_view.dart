@@ -3,7 +3,6 @@ import 'package:delivery_food_app/common_widget/round_button.dart';
 import 'package:delivery_food_app/view/main_tabview/main_tabview.dart';
 import 'package:flutter/material.dart';
 
-
 class OnBoardingView extends StatefulWidget {
   const OnBoardingView({super.key});
 

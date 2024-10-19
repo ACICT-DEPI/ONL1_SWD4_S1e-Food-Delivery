@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_food_app/common/color_extension.dart';
-import 'package:delivery_food_app/common_widget/round_textfield.dart';
 import 'package:delivery_food_app/models/meals.model.dart';
 import 'package:flutter/material.dart';
 
-import '../../common_widget/menu_item_row.dart';
 import '../more/my_order_view.dart';
 import 'item_details_view.dart';
 
