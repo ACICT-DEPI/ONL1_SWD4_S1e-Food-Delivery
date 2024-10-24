@@ -123,6 +123,8 @@ class _LoginViewState extends State<LoginView> {
 
     try {
       showLoadingDialog();
+      print('Email: $email');
+      print('Email: $password');
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
@@ -132,6 +134,10 @@ class _LoginViewState extends State<LoginView> {
       if (token != null) {
         await saveToken(token);
       }
+
+      print('User: ${userCredential.user?.email}');
+      print('User: ${token}');
+
       Navigator.pop(context);
       Navigator.pushReplacement(
         context,
@@ -140,14 +146,10 @@ class _LoginViewState extends State<LoginView> {
         ),
       );
     } on FirebaseAuthException catch (e) {
+      print('Error: ${e.code} - ${e.message}');
       mdShowAlert(Globs.appName, e.message ?? "An error occurred", () {});
+      Navigator.pop(context);
     }
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const MainTabView(),
-      ),
-    );
   }
 
   void showLoadingDialog() {

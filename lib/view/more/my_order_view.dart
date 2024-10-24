@@ -1,363 +1,198 @@
-import 'package:delivery_food_app/common/color_extension.dart';
-import 'package:delivery_food_app/common_widget/round_button.dart';
+import 'package:delivery_food_app/models/meals.model.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-import 'checkout_view.dart';
+class MyOrderView extends StatelessWidget {
+  const MyOrderView({Key? key}) : super(key: key);
 
-class MyOrderView extends StatefulWidget {
-  const MyOrderView({super.key});
+  Future<List<MenuItem>> getUserOrders() async {
+    List<MenuItem> orders = [];
 
-  @override
-  State<MyOrderView> createState() => _MyOrderViewState();
-}
+    try {
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('orders')
+          .doc(userId)
+          .collection('userOrders')
+          .get();
 
-class _MyOrderViewState extends State<MyOrderView> {
-  List itemArr = [
-    {"name": "Beef Burger", "qty": "1", "price": 16.0},
-    {"name": "Classic Burger", "qty": "1", "price": 14.0},
-    {"name": "Cheese Chicken Burger", "qty": "1", "price": 17.0},
-    {"name": "Chicken Legs Basket", "qty": "1", "price": 15.0},
-    {"name": "French Fires Large", "qty": "1", "price": 6.0}
-  ];
+      orders = querySnapshot.docs
+          .map((e) => MenuItem.fromJson(e.data() as Map<String, dynamic>))
+          .toList();
+
+      print('Orders retrieved successfully!');
+    } catch (e) {
+      print('Error retrieving orders: $e');
+    }
+
+    return orders;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: TColor.white,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 46,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: Image.asset("assets/img/btn_back.png",
-                          width: 20, height: 20),
-                    ),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    Expanded(
-                      child: Text(
-                        "My Order",
-                        style: TextStyle(
-                            color: TColor.primaryText,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                        borderRadius: BorderRadius.circular(15),
-                        child: Image.asset(
-                          "assets/img/shop_logo.png",
-                          width: 80,
-                          height: 80,
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: const Text('My Orders'),
+        backgroundColor: Colors.black,
+      ),
+      body: FutureBuilder<List<MenuItem>>(
+        future: getUserOrders(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+                child: Text('No orders found.',
+                    style: TextStyle(color: Colors.white)));
+          } else {
+            List<MenuItem> orders = snapshot.data!;
+            return ListView.builder(
+              itemCount: orders.length,
+              itemBuilder: (context, index) {
+                var order = orders[index];
+                return Container(
+                  padding: const EdgeInsets.all(0),
+                  margin: const EdgeInsets.only(
+                    top: 10,
+                    left: 25,
+                    right: 25,
+                  ),
+                  height: MediaQuery.of(context).size.height * (155 / 812),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white,
+                  ),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          bottomLeft: Radius.circular(12),
+                        ),
+                        child: Image.network(
+                          order.imageUrl ?? "",
+                          height:
+                              MediaQuery.of(context).size.height * (155 / 812),
+                          width:
+                              MediaQuery.of(context).size.width * (100 / 360),
                           fit: BoxFit.cover,
-                        )),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        ),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * (5 / 360),
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(
+                          top: MediaQuery.of(context).size.height * (10 / 800),
+                        ),
+                        width: MediaQuery.of(context).size.width * (130 / 360),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              order.name ?? '',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              order.category ?? '',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              'Qty: ${order.quantity}',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              'Address: ${order.address}',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                              ),
+                            ),
+                            Text(
+                              'Phone: ${order.phoneNumber}',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const Spacer(),
+                          ],
+                        ),
+                      ),
+                      const Spacer(),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(
-                            "King Burgers",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                color: TColor.primaryText,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            margin: const EdgeInsets.only(
+                              right: 10,
+                            ),
+                            decoration: BoxDecoration(
+                                color: Colors.black,
+                                borderRadius: BorderRadius.circular(15)),
+                            child: Text(
+                              order.state ?? '',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
                           ),
-                          const SizedBox(
-                            height: 4,
-                          ),
+                          const Spacer(),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Image.asset(
-                                "assets/img/rate.png",
-                                width: 10,
-                                height: 10,
-                                color: TColor.primary,
-                                fit: BoxFit.cover,
-                              ),
-                              const SizedBox(
-                                width: 4,
-                              ),
-                              Text(
-                                "4.9",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: TColor.primary, fontSize: 12),
-                              ),
-                              const SizedBox(
-                                width: 8,
-                              ),
-                              Text(
-                                "(124 Ratings)",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: TColor.secondaryText, fontSize: 12),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 4,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(
-                                "Burger",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: TColor.secondaryText, fontSize: 12),
-                              ),
-                              Text(
-                                " . ",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: TColor.primary, fontSize: 12),
-                              ),
-                              Text(
-                                "Western Food",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: TColor.secondaryText, fontSize: 12),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 4,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Image.asset(
-                                "assets/img/location-pin.png",
-                                width: 13,
-                                height: 13,
-                                fit: BoxFit.contain,
-                              ),
-                              const SizedBox(
-                                width: 4,
-                              ),
-                              Expanded(
-                                child: Text(
-                                  "No 03, 4th Lane, Newyork",
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(
-                                      color: TColor.secondaryText,
-                                      fontSize: 12),
+                                '\$${order.totalPrice}',
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width *
+                                    (10 / 360),
+                              ),
                             ],
                           ),
+                          SizedBox(
+                            height:
+                                MediaQuery.of(context).size.height * (10 / 800),
+                          ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Container(
-                decoration: BoxDecoration(color: TColor.textfield),
-                child: ListView.separated(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  padding: EdgeInsets.zero,
-                  itemCount: itemArr.length,
-                  separatorBuilder: ((context, index) => Divider(
-                        indent: 25,
-                        endIndent: 25,
-                        color: TColor.secondaryText.withOpacity(0.5),
-                        height: 1,
-                      )),
-                  itemBuilder: ((context, index) {
-                    var cObj = itemArr[index] as Map? ?? {};
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 15, horizontal: 25),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "${cObj["name"].toString()} x${cObj["qty"].toString()}",
-                              style: TextStyle(
-                                  color: TColor.primaryText,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 15,
-                          ),
-                          Text(
-                            "\$${cObj["price"].toString()}",
-                            style: TextStyle(
-                                color: TColor.primaryText,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700),
-                          )
-                        ],
-                      ),
-                    );
-                  }),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Delivery Instructions",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: TColor.primaryText,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700),
-                        ),
-                        TextButton.icon(
-                          onPressed: () {},
-                          icon: Icon(Icons.add, color: TColor.primary),
-                          label: Text(
-                            "Add Notes",
-                            style: TextStyle(
-                                color: TColor.primary,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500),
-                          ),
-                        )
-                      ],
-                    ),
-                    Divider(
-                      color: TColor.secondaryText.withOpacity(0.5),
-                      height: 1,
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Sub Total",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: TColor.primaryText,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700),
-                        ),
-                        Text(
-                          "\$68",
-                          style: TextStyle(
-                              color: TColor.primary,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700),
-                        )
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Delivery Cost",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: TColor.primaryText,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700),
-                        ),
-                        Text(
-                          "\$2",
-                          style: TextStyle(
-                              color: TColor.primary,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700),
-                        )
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    Divider(
-                      color: TColor.secondaryText.withOpacity(0.5),
-                      height: 1,
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Total",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: TColor.primaryText,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700),
-                        ),
-                        Text(
-                          "\$70",
-                          style: TextStyle(
-                              color: TColor.primary,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w700),
-                        )
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 25,
-                    ),
-                    RoundButton(
-                        title: "Checkout",
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const CheckoutView(),
-                            ),
-                          );
-                        }),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+                    ],
+                  ),
+                );
+              },
+            );
+          }
+        },
       ),
     );
   }

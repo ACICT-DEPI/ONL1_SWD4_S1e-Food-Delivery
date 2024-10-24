@@ -1,11 +1,16 @@
 class MenuItem {
-  final String name;
-  final String imageUrl;
-  final String description;
-  final double price;
-  final double rating;
-  final String category;
-
+  String? name;
+  String? imageUrl;
+  String? description;
+  double? price;
+  double? rating;
+  String? category;
+  int? quantity;
+  double? totalPrice;
+  String? state;
+  String? phoneNumber;
+  String? userId;
+  String? address;
   MenuItem({
     required this.name,
     required this.imageUrl,
@@ -15,15 +20,19 @@ class MenuItem {
     required this.category,
   });
 
-  factory MenuItem.fromJson(Map<String, dynamic> data) {
-    return MenuItem(
-      name: data['name'] ?? '',
-      imageUrl: data['imageUrl'] ?? '',
-      description: data['description'] ?? '',
-      price: data['price']?.toDouble() ?? 0.0,
-      rating: data['rating']?.toDouble() ?? 0.0,
-      category: data['category'] ?? '',
-    );
+  MenuItem.fromJson(Map<String, dynamic> data) {
+    name = data['name'];
+    imageUrl = data['imageUrl'];
+    description = data['description'];
+    price = data['price'];
+    rating = data['rating'];
+    category = data['category'];
+    quantity = data['quantity'];
+    address = data['address'];
+    totalPrice = data['totalPrice'];
+    phoneNumber = data['phoneNumber'];
+    state = data['state'];
+    userId = data['userId'];
   }
 
   Map<String, dynamic> toJson() {
@@ -34,6 +43,12 @@ class MenuItem {
       'price': price,
       'rating': rating,
       'category': category,
+      'quantity': quantity,
+      'address': address,
+      'totalPrice': totalPrice,
+      'phoneNumber': phoneNumber,
+      'state': state,
+      'userId': userId,
     };
   }
 }

@@ -1,7 +1,7 @@
-
 import 'package:delivery_food_app/common/color_extension.dart';
 import 'package:delivery_food_app/models/meals.model.dart';
 import 'package:delivery_food_app/services/services.dart';
+import 'package:delivery_food_app/view/menu/item_details_view.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/globs.dart';
@@ -32,7 +32,6 @@ class _HomeViewState extends State<HomeView> {
 
     isUploading = false;
     setState(() {});
-   
   }
 
   List catArr = [
@@ -164,13 +163,22 @@ class _HomeViewState extends State<HomeView> {
                       itemCount: menuItems.length,
                       itemBuilder: ((context, index) {
                         return PopularRestaurantRow(
-                          name: menuItems[index].name,
-                          imageUrl: menuItems[index].imageUrl,
-                          rating: menuItems[index].rating,
-                          category: menuItems[index].category,
-                          price: menuItems[index].price,
-                          description: menuItems[index].description,
-                          onTap: () {},
+                          name: menuItems[index].name ?? '',
+                          imageUrl: menuItems[index].imageUrl ?? '',
+                          rating: menuItems[index].rating ?? 0,
+                          category: menuItems[index].category ?? '',
+                          price: menuItems[index].price ?? 0,
+                          description: menuItems[index].description ?? '',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ItemDetailsView(
+                                  item: menuItems[index],
+                                ),
+                              ),
+                            );
+                          },
                         );
                       }),
                     ),
@@ -223,5 +231,3 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 }
-
-

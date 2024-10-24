@@ -28,15 +28,12 @@ class _MenuItemsViewState extends State<MenuItemsView> {
 
   Future<void> getMenuItems(String category) async {
     try {
-      // Reference to the 'menu' collection
       CollectionReference menuRef =
           FirebaseFirestore.instance.collection('menu');
 
-      // Query the menu items by category (e.g., "meal" or "dessert")
       QuerySnapshot snapshot =
           await menuRef.where('category', isEqualTo: category).get();
 
-      // Map the retrieved documents into a list of MenuItem objects
       menuItems = snapshot.docs
           .map((e) => MenuItem.fromJson(e.data() as Map<String, dynamic>))
           .toList();
@@ -137,7 +134,7 @@ class _MenuItemsViewState extends State<MenuItemsView> {
                                     borderRadius: BorderRadius.circular(10),
                                     image: DecorationImage(
                                       image: NetworkImage(
-                                          menuItems[index].imageUrl),
+                                          menuItems[index].imageUrl ?? ''),
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -166,7 +163,7 @@ class _MenuItemsViewState extends State<MenuItemsView> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            menuItems[index].name,
+                                            menuItems[index].name ?? '',
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                                 color: TColor.white,
@@ -203,7 +200,7 @@ class _MenuItemsViewState extends State<MenuItemsView> {
                                                 width: 8,
                                               ),
                                               Text(
-                                                menuItems[index].category,
+                                                menuItems[index].category ?? '',
                                                 textAlign: TextAlign.center,
                                                 style: TextStyle(
                                                     color: TColor.white,
@@ -217,7 +214,7 @@ class _MenuItemsViewState extends State<MenuItemsView> {
                                                     fontSize: 11),
                                               ),
                                               Text(
-                                                menuItems[index].category,
+                                                menuItems[index].category ?? '',
                                                 textAlign: TextAlign.center,
                                                 style: TextStyle(
                                                     color: TColor.white,

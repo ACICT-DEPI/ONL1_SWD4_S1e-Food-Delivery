@@ -18,7 +18,7 @@ class MenuItemRow extends StatelessWidget {
           alignment: Alignment.bottomLeft,
           children: [
             Image.network(
-              menuItems.imageUrl,
+              menuItems.imageUrl??'',
               width: double.maxFinite,
               height: 200,
               fit: BoxFit.cover,
@@ -42,7 +42,7 @@ class MenuItemRow extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        menuItems.name,
+                        menuItems.name??'',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: TColor.white,
@@ -75,7 +75,7 @@ class MenuItemRow extends StatelessWidget {
                             width: 8,
                           ),
                           Text(
-                            menuItems.category,  
+                            menuItems.category??'',  
                             textAlign: TextAlign.center,
                             style: TextStyle(color: TColor.white, fontSize: 11),
                           ),
@@ -86,7 +86,7 @@ class MenuItemRow extends StatelessWidget {
                                 TextStyle(color: TColor.primary, fontSize: 11),
                           ),
                           Text(
-                            menuItems.category,
+                            menuItems.category ?? '',
                             textAlign: TextAlign.center,
                             style: TextStyle(color: TColor.white, fontSize: 12),
                           ),

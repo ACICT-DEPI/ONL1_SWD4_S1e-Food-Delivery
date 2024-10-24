@@ -1,5 +1,6 @@
 import 'package:delivery_food_app/common_widget/round_icon_button.dart';
 import 'package:delivery_food_app/models/meals.model.dart';
+import 'package:delivery_food_app/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
@@ -25,7 +26,7 @@ class _ItemDetailsViewState extends State<ItemDetailsView> {
         alignment: Alignment.topCenter,
         children: [
           Image.network(
-            widget.item.imageUrl,
+            widget.item.imageUrl ?? '',
             width: media.width,
             height: media.width,
             fit: BoxFit.cover,
@@ -67,7 +68,7 @@ class _ItemDetailsViewState extends State<ItemDetailsView> {
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 25),
                                 child: Text(
-                                  widget.item.name,
+                                  widget.item.name ?? '',
                                   style: TextStyle(
                                       color: TColor.primaryText,
                                       fontSize: 22,
@@ -169,7 +170,7 @@ class _ItemDetailsViewState extends State<ItemDetailsView> {
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 25),
                                 child: Text(
-                                  widget.item.description,
+                                  widget.item.description ?? '',
                                   style: TextStyle(
                                       color: TColor.secondaryText,
                                       fontSize: 12),
@@ -349,7 +350,7 @@ class _ItemDetailsViewState extends State<ItemDetailsView> {
                                                     height: 15,
                                                   ),
                                                   Text(
-                                                    "\$${(widget.item.price * qty).toString()}",
+                                                    "\$${(widget.item.price! * qty).toString().substring(0, 4)}",
                                                     style: TextStyle(
                                                         color:
                                                             TColor.primaryText,
@@ -368,7 +369,14 @@ class _ItemDetailsViewState extends State<ItemDetailsView> {
                                                         icon:
                                                             "assets/img/shopping_add.png",
                                                         color: TColor.primary,
-                                                        onPressed: () {}),
+                                                        onPressed: () async {
+                                                          await Service()
+                                                              .saveOrder(
+                                                            context,
+                                                            widget.item,
+                                                            qty,
+                                                          );
+                                                        }),
                                                   )
                                                 ],
                                               )),

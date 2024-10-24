@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_food_app/common/color_extension.dart';
 import 'package:delivery_food_app/common/extension.dart';
@@ -24,6 +23,8 @@ class _SignUpViewState extends State<SignUpView> {
   TextEditingController txtName = TextEditingController();
   TextEditingController txtMobile = TextEditingController();
   TextEditingController txtEmail = TextEditingController();
+  TextEditingController txtAddress = TextEditingController();
+
   TextEditingController txtPassword = TextEditingController();
   TextEditingController txtConfirmPassword = TextEditingController();
   final _auth = FirebaseAuth.instance;
@@ -80,6 +81,13 @@ class _SignUpViewState extends State<SignUpView> {
                 height: 25,
               ),
               RoundTextfield(
+                hintText: "Address",
+                controller: txtAddress,
+              ),
+              const SizedBox(
+                height: 25,
+              ),
+              RoundTextfield(
                 hintText: "Password",
                 controller: txtPassword,
                 obscureText: true,
@@ -99,7 +107,6 @@ class _SignUpViewState extends State<SignUpView> {
                   title: "Sign Up",
                   onPressed: () async {
                     await signUp(txtEmail.text, txtPassword.text, "admin");
-                  
                   }),
               const SizedBox(
                 height: 30,
@@ -217,25 +224,25 @@ class _SignUpViewState extends State<SignUpView> {
     await pref.setString('authToken', token);
   }
 
-
-
   Future<void> postDetailsToFirestone(BuildContext context, String role) async {
     var user = _auth.currentUser;
     if (user != null) {
       CollectionReference ref = FirebaseFirestore.instance.collection('users');
-       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .get();
-          if (kDebugMode) {
-            print('DocumentSnapshot: ${documentSnapshot.data() as Map<String, dynamic>? ?? {}}');
-          }
+      if (kDebugMode) {
+        print(
+            'DocumentSnapshot: ${documentSnapshot.data() as Map<String, dynamic>? ?? {}}');
+      }
       try {
         await ref.doc(user.uid).set({
           'email': txtEmail.text,
           'role': role,
           'name': txtName.text,
           'mobile': txtMobile.text,
+          'address': txtAddress.text,
         });
         print('User details saved successfully.');
       } catch (e) {
@@ -247,8 +254,4 @@ class _SignUpViewState extends State<SignUpView> {
       print('User is null, cannot post details.');
     }
   }
-
- 
-
-  
 }

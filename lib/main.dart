@@ -1,4 +1,3 @@
-
 import 'package:delivery_food_app/common/color_extension.dart';
 import 'package:delivery_food_app/firebase_options.dart';
 import 'package:delivery_food_app/view/login/welcome_view.dart';
@@ -8,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 SharedPreferences? prefs;
 void main() async {
@@ -21,11 +19,6 @@ void main() async {
     defaultHome: WelcomeView(),
   ));
 }
-
-
-
-
-
 
 class MyApp extends StatefulWidget {
   final Widget defaultHome;
@@ -41,14 +34,11 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'The Plate',
       debugShowCheckedModeBanner: false,
-
       themeMode: ThemeMode.dark,
-
       theme: ThemeData(
         primarySwatch: Colors.blue,
         brightness: Brightness.light,
       ),
-
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         primaryColor: TColor.primary,
@@ -63,10 +53,10 @@ class _MyAppState extends State<MyApp> {
           bodyText2: TextStyle(color: TColor.primaryText),
         ),
       ),
-
       home: FutureBuilder<String?>(
         future: getToken(),
         builder: (context, snapshot) {
+          print(snapshot.data);
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -77,7 +67,6 @@ class _MyAppState extends State<MyApp> {
           }
         },
       ),
-
       builder: (context, child) {
         return FlutterEasyLoading(child: child);
       },
